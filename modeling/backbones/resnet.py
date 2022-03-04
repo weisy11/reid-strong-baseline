@@ -8,6 +8,7 @@ import math
 
 import torch
 from torch import nn
+from reprod_log import ReprodLogger
 
 
 def conv3x3(in_planes, out_planes, stride=1):
@@ -126,9 +127,13 @@ class ResNet(nn.Module):
         x = self.maxpool(x)
 
         x = self.layer1(x)
+        reprod_logger.add("layer1", x.detach().numpy())
         x = self.layer2(x)
         x = self.layer3(x)
+        reprod_logger.add("layer3", x.detach().numpy())
+
         x = self.layer4(x)
+        reprod_logger.add("layer4", x.detach().numpy())
 
         return x
 
@@ -148,3 +153,19 @@ class ResNet(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
+
+if __name__ == '__main__':
+    import numpy as np
+    reprod_logger = ReprodLogger()
+    input_data = np.load("test_input.npy")
+    resnet = ResNet()
+    resnet.eval()
+    weights = "resnet50-0676ba61.pth"
+    # with open(weights, "rb") as f:
+    #     torch_dict = torch.load(f)
+    resnet.load_param(weights)
+
+    input_tensor = torch.tensor(input_data)
+    output = resnet(input_tensor)
+    reprod_logger.add("output", output.detach().numpy())
+    reprod_logger.save("torch_resnet.npy")

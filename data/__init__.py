@@ -5,3 +5,4 @@
 """
 
 from .build import make_data_loader
+from .build_paddle import make_data_loader_paddle

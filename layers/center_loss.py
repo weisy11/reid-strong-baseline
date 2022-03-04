@@ -35,7 +35,7 @@ class CenterLoss(nn.Module):
         assert x.size(0) == labels.size(0), "features.size(0) is not equal to labels.size(0)"
 
         batch_size = x.size(0)
-        distmat = torch.pow(x, 2).sum(dim=1, keepdim=True).expand(batch_size, self.num_classes) + \
+        distmat = torch.pow(x, 2).sum(dim=1, keepdim=True).expand(batch_size, self.num_classes) +\
                   torch.pow(self.centers, 2).sum(dim=1, keepdim=True).expand(self.num_classes, batch_size).t()
         distmat.addmm_(1, -2, x, self.centers.t())
 
@@ -46,24 +46,28 @@ class CenterLoss(nn.Module):
 
         dist = distmat * mask.float()
         loss = dist.clamp(min=1e-12, max=1e+12).sum() / batch_size
-        #dist = []
-        #for i in range(batch_size):
-        #    value = distmat[i][mask[i]]
-        #    value = value.clamp(min=1e-12, max=1e+12)  # for numerical stability
-        #    dist.append(value)
-        #dist = torch.cat(dist)
-        #loss = dist.mean()
         return loss
 
 
 if __name__ == '__main__':
+    import numpy as np
+    from reprod_log import ReprodLogger
+
+    reprod_logger = ReprodLogger()
     use_gpu = False
     center_loss = CenterLoss(use_gpu=use_gpu)
-    features = torch.rand(16, 2048)
+    center_loss.eval()
+    features = np.load("features_input.npy")
+    features = torch.tensor(features)
     targets = torch.Tensor([0, 1, 2, 3, 2, 3, 1, 4, 5, 3, 2, 1, 0, 0, 5, 4]).long()
     if use_gpu:
         features = torch.rand(16, 2048).cuda()
         targets = torch.Tensor([0, 1, 2, 3, 2, 3, 1, 4, 5, 3, 2, 1, 0, 0, 5, 4]).cuda()
+    weights = torch.load("center_loss_weight.npy")
+    center_loss.load_state_dict(weights)
 
     loss = center_loss(features, targets)
+
     print(loss)
+    reprod_logger.add("output", loss.detach().numpy())
+    reprod_logger.save("torch_centerloss.npy")

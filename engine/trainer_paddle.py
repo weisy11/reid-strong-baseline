@@ -6,13 +6,12 @@
 
 import logging
 
-import torch
-import torch.nn as nn
+import paddle
 from ignite.engine import Engine, Events
 from ignite.handlers import ModelCheckpoint, Timer
 from ignite.metrics import RunningAverage
 
-from utils.reid_metric import R1_mAP
+from utils.reid_metric_paddle import R1_mAP
 
 global ITER
 ITER = 0
@@ -32,19 +31,10 @@ def create_supervised_trainer(model, optimizer, loss_fn,
     Returns:
         Engine: a trainer engine with supervised update function
     """
-    if device:
-        if torch.cuda.device_count() > 1:
-            model = nn.DataParallel(model)
-        model.to(device)
-
     def _update(engine, batch):
         model.train()
         optimizer.zero_grad()
         img, target = batch
-        img = img.to(device) if torch.cuda.device_count() >= 1 else img
-        import numpy as np
-        img = np.random.random((1, 3, 128, 256))
-        target = target.to(device) if torch.cuda.device_count() >= 1 else target
         score, feat = model(img)
         loss = loss_fn(score, feat, target)
         loss.backward()
@@ -71,18 +61,11 @@ def create_supervised_trainer_with_center(model, center_criterion, optimizer, op
     Returns:
         Engine: a trainer engine with supervised update function
     """
-    if device:
-        if torch.cuda.device_count() > 1:
-            model = nn.DataParallel(model)
-        model.to(device)
-
     def _update(engine, batch):
         model.train()
         optimizer.zero_grad()
         optimizer_center.zero_grad()
         img, target = batch
-        img = img.to(device) if torch.cuda.device_count() >= 1 else img
-        target = target.to(device) if torch.cuda.device_count() >= 1 else target
         score, feat = model(img)
         loss = loss_fn(score, feat, target)
         # print("Total loss is {}, center loss is {}".format(loss, center_criterion(feat, target)))
@@ -112,16 +95,10 @@ def create_supervised_evaluator(model, metrics,
     Returns:
         Engine: an evaluator engine with supervised inference function
     """
-    if device:
-        if torch.cuda.device_count() > 1:
-            model = nn.DataParallel(model)
-        model.to(device)
-
     def _inference(engine, batch):
         model.eval()
-        with torch.no_grad():
+        with paddle.no_grad():
             data, pids, camids = batch
-            data = data.to(device) if torch.cuda.device_count() >= 1 else data
             feat = model(data)
             return feat, pids, camids
 
