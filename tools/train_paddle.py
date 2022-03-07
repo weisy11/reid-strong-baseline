@@ -22,7 +22,7 @@ from utils.logger import setup_logger
 
 def train(cfg):
     # prepare dataset
-    train_loader, val_loader, num_query, num_classes = make_data_loader_paddle(cfg)
+    train_loader, val_loader, num_query, num_classes = make_data_loader(cfg)
 
     # prepare model
     model = build_model_paddle(cfg, num_classes)
