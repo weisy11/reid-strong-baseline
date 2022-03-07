@@ -77,7 +77,7 @@ class RandomIdentitySampler(BatchSampler):
 
 
 # New add by gu
-class RandomIdentitySampler_alignedreid(Sampler):
+class RandomIdentitySampler_alignedreid(BatchSampler):
     """
     Randomly sample N identities, then for each identity,
     randomly sample K instances, therefore batch size is N*K.
