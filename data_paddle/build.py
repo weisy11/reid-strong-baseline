@@ -6,10 +6,10 @@
 
 from paddle.io import DataLoader
 
-from data.collate_batch import train_collate_fn, val_collate_fn
-from data.datasets import init_dataset, ImageDataset
-from data.samplers import RandomIdentitySampler, RandomIdentitySampler_alignedreid  # New add by gu
-from data.transforms import build_transforms
+from data_paddle.collate_batch import train_collate_fn, val_collate_fn
+from data_paddle.datasets import init_dataset, ImageDataset
+from data_paddle.samplers import RandomIdentitySampler, RandomIdentitySampler_alignedreid  # New add by gu
+from data_paddle.transforms import build_transforms
 
 
 def make_data_loader(cfg):
