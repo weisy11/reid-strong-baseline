@@ -10,10 +10,10 @@ import torch
 from collections import defaultdict
 
 import numpy as np
-from paddle.io import Sampler
+from paddle.io import BatchSampler
 
 
-class RandomIdentitySampler(Sampler):
+class RandomIdentitySampler(BatchSampler):
     """
     Randomly sample N identities, then for each identity,
     randomly sample K instances, therefore batch size is N*K.
