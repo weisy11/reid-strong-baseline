@@ -15,7 +15,7 @@ from data_paddle import make_data_loader
 from engine.trainer_paddle import do_train, do_train_with_center
 from modeling import build_model_paddle
 from layers_paddle import make_loss, make_loss_with_center
-from solver import make_optimizer_paddle, make_optimizer_with_center_paddle, WarmupMultiStepLR
+from solver import make_optimizer_paddle, make_optimizer_with_center_paddle, WarmupMultiStepLRPaddle
 
 from utils.logger import setup_logger
 
@@ -43,11 +43,11 @@ def train(cfg):
             print('Path to the checkpoint of optimizer:', path_to_optimizer)
             model.load_state_dict(paddle.load(cfg.MODEL.PRETRAIN_PATH))
             optimizer.load_state_dict(paddle.load(path_to_optimizer))
-            scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
         elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
             start_epoch = 0
-            scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
         else:
             print('Only support pretrain_choice for imagenet and self, but got {}'.format(cfg.MODEL.PRETRAIN_CHOICE))
@@ -88,11 +88,11 @@ def train(cfg):
             optimizer.load_state_dict(paddle.load(path_to_optimizer))
             center_criterion.load_state_dict(paddle.load(path_to_center_param))
             optimizer_center.load_state_dict(paddle.load(path_to_optimizer_center))
-            scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
         elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
             start_epoch = 0
-            scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
                                           cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
         else:
             print('Only support pretrain_choice for imagenet and self, but got {}'.format(cfg.MODEL.PRETRAIN_CHOICE))
