@@ -141,10 +141,11 @@ class ResNet(nn.Layer):
 
     def load_param(self, model_path):
         param_dict = paddle.load(model_path)
-        for i in param_dict:
-            if 'fc' in i:
-                continue
-            self.state_dict()[i].copy_(param_dict[i])
+        self.set_state_dict(param_dict)
+        # for i in param_dict:
+        #     if 'fc' in i:
+        #         continue
+        #     self.state_dict()[i].copy_(param_dict[i])
 
     def random_init(self):
         for m in self.modules():
