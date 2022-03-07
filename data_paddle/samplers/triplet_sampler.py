@@ -23,9 +23,9 @@ class RandomIdentitySampler(BatchSampler):
     - batch_size (int): number of examples in a batch.
     """
 
-    def __init__(self, data_source, batch_size, num_instances):
-        super(RandomIdentitySampler, self).__init__()
-        self.data_source = data_source
+    def __init__(self, dataset, batch_size, num_instances):
+        super(RandomIdentitySampler, self).__init__(dataset, batch_size)
+        self.data_source = dataset
         self.batch_size = batch_size
         self.num_instances = num_instances
         self.num_pids_per_batch = self.batch_size // self.num_instances
