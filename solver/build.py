@@ -27,20 +27,15 @@ def make_optimizer(cfg, model):
 
 
 def make_optimizer_paddle(cfg, model):
-    params = []
-    for key, value in model.named_parameters():
-        if value.stop_gradient:
-            continue
-        lr = cfg.SOLVER.BASE_LR
-        weight_decay = cfg.SOLVER.WEIGHT_DECAY
-        if "bias" in key:
-            lr = cfg.SOLVER.BASE_LR * cfg.SOLVER.BIAS_LR_FACTOR
-            weight_decay = cfg.SOLVER.WEIGHT_DECAY_BIAS
-        params += [{"parameters": [value], "learning_rate": lr, "weight_decay": weight_decay}]
+    lr = cfg.SOLVER.BASE_LR
+    weight_decay = cfg.SOLVER.WEIGHT_DECAY
+
     if cfg.SOLVER.OPTIMIZER_NAME == 'SGD':
-        optimizer = getattr(paddle.optimizer, cfg.SOLVER.OPTIMIZER_NAME)(params, momentum=cfg.SOLVER.MOMENTUM)
+        momentum = cfg.SOLVER.MOMENTUM
+        optimizer = getattr(paddle.optimizer, "Momentum")(lr, momentum, model.parameters(), weight_decay=weight_decay)
     else:
-        optimizer = getattr(paddle.optimizer, cfg.SOLVER.OPTIMIZER_NAME)(params)
+        optimizer = getattr(paddle.optimizer, cfg.SOLVER.OPTIMIZER_NAME)(lr, parameters=model.parameters(),
+                                                                         weight_decay=weight_decay)
     return optimizer
 
 
