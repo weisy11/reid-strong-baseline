@@ -75,7 +75,7 @@ class BaselinePaddle(paddle.nn.Layer):
             # self.classifier.apply(weights_init_classifier)  # new add by luo
         elif self.neck == 'bnneck':
             self.bottleneck = paddle.nn.BatchNorm1D(self.in_planes)
-            self.bottleneck.bias.requires_grad_(False)  # no shift
+            self.bottleneck.bias.stop_gradient()  # no shift
             self.classifier = paddle.nn.Linear(self.in_planes, self.num_classes, bias_attr=False)
 
             # self.bottleneck.apply(weights_init_kaiming)
