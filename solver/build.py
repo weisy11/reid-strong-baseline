@@ -29,7 +29,7 @@ def make_optimizer(cfg, model):
 def make_optimizer_paddle(cfg, model):
     params = []
     for key, value in model.named_parameters():
-        if not value.requires_grad:
+        if value.stop_gradient:
             continue
         lr = cfg.SOLVER.BASE_LR
         weight_decay = cfg.SOLVER.WEIGHT_DECAY
