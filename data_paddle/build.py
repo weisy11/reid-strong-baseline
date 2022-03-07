@@ -34,8 +34,7 @@ def make_data_loader(cfg):
             dataset=train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH,
             batch_sampler=RandomIdentitySampler(train_set, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE),
             # sampler=RandomIdentitySampler_alignedreid(dataset.train, cfg.DATALOADER.NUM_INSTANCE),      # new add by gu
-            num_workers=num_workers, collate_fn=train_collate_fn,
-            drop_last=True
+            num_workers=num_workers, collate_fn=train_collate_fn
         )
 
     val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
