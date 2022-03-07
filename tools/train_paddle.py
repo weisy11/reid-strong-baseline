@@ -11,7 +11,7 @@ import paddle
 
 sys.path.append('.')
 from config import cfg
-from data import make_data_loader_paddle
+from data_paddle import make_data_loader
 from engine.trainer_paddle import do_train, do_train_with_center
 from modeling import build_model_paddle
 from layers_paddle import make_loss, make_loss_with_center
