@@ -24,7 +24,7 @@ class RandomIdentitySampler(BatchSampler):
     """
 
     def __init__(self, dataset, batch_size, num_instances):
-        super(RandomIdentitySampler, self).__init__(dataset, batch_size)
+        super(RandomIdentitySampler, self).__init__(dataset, batch_size=batch_size)
         self.data_source = dataset
         self.batch_size = batch_size
         self.num_instances = num_instances

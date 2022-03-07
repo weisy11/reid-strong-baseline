@@ -32,7 +32,7 @@ def make_data_loader(cfg):
     else:
         train_loader = DataLoader(
             dataset=train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH,
-            batch_sampler=RandomIdentitySampler(dataset.train, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE),
+            batch_sampler=RandomIdentitySampler(train_set, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE),
             # sampler=RandomIdentitySampler_alignedreid(dataset.train, cfg.DATALOADER.NUM_INSTANCE),      # new add by gu
             num_workers=num_workers, collate_fn=train_collate_fn,
             drop_last=True
