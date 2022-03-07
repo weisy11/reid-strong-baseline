@@ -41,9 +41,10 @@ def create_supervised_trainer(model, optimizer, loss_fn,
         model.train()
         optimizer.zero_grad()
         img, target = batch
+        img = torch.zeros(img.shape)
         img = img.to(device) if torch.cuda.device_count() >= 1 else img
-        import numpy as np
-        img = np.random.random((1, 3, 128, 256))
+        # import numpy as np
+        # img = np.random.random((1, 3, 128, 256))
         target = target.to(device) if torch.cuda.device_count() >= 1 else target
         score, feat = model(img)
         loss = loss_fn(score, feat, target)
