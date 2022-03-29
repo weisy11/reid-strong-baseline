@@ -18,6 +18,8 @@ from layers_paddle import make_loss, make_loss_with_center
 from solver import make_optimizer_paddle, make_optimizer_with_center_paddle, WarmupMultiStepLRPaddle
 
 from utils.logger import setup_logger
+from solver.lr_scheduler import WarmupMultiStepLRPaddle
+
 
 
 def train(cfg):

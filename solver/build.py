@@ -7,9 +7,6 @@
 import torch
 import paddle
 
-from lr_scheduler import WarmupMultiStepLRPaddle
-
-
 def make_optimizer(cfg, model):
     params = []
     for key, value in model.named_parameters():
