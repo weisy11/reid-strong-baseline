@@ -32,11 +32,11 @@ def train(cfg):
     if cfg.MODEL.IF_WITH_CENTER == 'no':
         print('Train without center loss, the loss type is', cfg.MODEL.METRIC_LOSS_TYPE)
         base_lr = cfg.SOLVER.BASE_LR
-        lr = WarmupMultiStepLRPaddle(base_lr, cfg.SOLVER.STEPS, len_dataloader, cfg.SOLVER.MAX_EPOCHS,
+        scheduler = WarmupMultiStepLRPaddle(base_lr, cfg.SOLVER.STEPS, len(train_loader), cfg.SOLVER.MAX_EPOCHS,
                                      cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_FACTOR)()
-        optimizer = make_optimizer_paddle(cfg, model, len(train_loader), lr)
-        scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-                                      cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
+        optimizer = make_optimizer_paddle(cfg, model, len(train_loader), scheduler)
+        # scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+        #                               cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
         loss_func = make_loss(cfg, num_classes)     # modified by gu
 
