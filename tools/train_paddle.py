@@ -29,9 +29,12 @@ def train(cfg):
 
     if cfg.MODEL.IF_WITH_CENTER == 'no':
         print('Train without center loss, the loss type is', cfg.MODEL.METRIC_LOSS_TYPE)
-        optimizer = make_optimizer_paddle(cfg, model, len(train_loader))
-        # scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-        #                               cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
+        base_lr = cfg.SOLVER.BASE_LR
+        lr = WarmupMultiStepLRPaddle(base_lr, cfg.SOLVER.STEPS, len_dataloader, cfg.SOLVER.MAX_EPOCHS,
+                                     cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_FACTOR)()
+        optimizer = make_optimizer_paddle(cfg, model, len(train_loader), lr)
+        scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+                                      cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
         loss_func = make_loss(cfg, num_classes)     # modified by gu
 
@@ -48,51 +51,51 @@ def train(cfg):
             num_query,
             start_epoch     # add for using self trained model
         )
-    elif cfg.MODEL.IF_WITH_CENTER == 'yes':
-        print('Train with center loss, the loss type is', cfg.MODEL.METRIC_LOSS_TYPE)
-        loss_func, center_criterion = make_loss_with_center(cfg, num_classes)  # modified by gu
-        optimizer, optimizer_center = make_optimizer_with_center_paddle(cfg, model, center_criterion)
-        # scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-        #                               cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
-
-        arguments = {}
-
-        # Add for using self trained model
-        if cfg.MODEL.PRETRAIN_CHOICE == 'self':
-            start_epoch = eval(cfg.MODEL.PRETRAIN_PATH.split('/')[-1].split('.')[0].split('_')[-1])
-            print('Start epoch:', start_epoch)
-            path_to_optimizer = cfg.MODEL.PRETRAIN_PATH.replace('model', 'optimizer')
-            print('Path to the checkpoint of optimizer:', path_to_optimizer)
-            path_to_center_param = cfg.MODEL.PRETRAIN_PATH.replace('model', 'center_param')
-            print('Path to the checkpoint of center_param:', path_to_center_param)
-            path_to_optimizer_center = cfg.MODEL.PRETRAIN_PATH.replace('model', 'optimizer_center')
-            print('Path to the checkpoint of optimizer_center:', path_to_optimizer_center)
-            model.load_state_dict(paddle.load(cfg.MODEL.PRETRAIN_PATH))
-            optimizer.load_state_dict(paddle.load(path_to_optimizer))
-            center_criterion.load_state_dict(paddle.load(path_to_center_param))
-            optimizer_center.load_state_dict(paddle.load(path_to_optimizer_center))
-            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-                                          cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
-        elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
-            start_epoch = 0
-            scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
-                                          cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
-        else:
-            print('Only support pretrain_choice for imagenet and self, but got {}'.format(cfg.MODEL.PRETRAIN_CHOICE))
-
-        do_train_with_center(
-            cfg,
-            model,
-            center_criterion,
-            train_loader,
-            val_loader,
-            optimizer,
-            optimizer_center,
-            scheduler,      # modify for using self trained model
-            loss_func,
-            num_query,
-            start_epoch     # add for using self trained model
-        )
+    # elif cfg.MODEL.IF_WITH_CENTER == 'yes':
+    #     print('Train with center loss, the loss type is', cfg.MODEL.METRIC_LOSS_TYPE)
+    #     loss_func, center_criterion = make_loss_with_center(cfg, num_classes)  # modified by gu
+    #     optimizer, optimizer_center = make_optimizer_with_center_paddle(cfg, model, center_criterion)
+    #     # scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+    #     #                               cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
+    #
+    #     arguments = {}
+    #
+    #     # Add for using self trained model
+    #     if cfg.MODEL.PRETRAIN_CHOICE == 'self':
+    #         start_epoch = eval(cfg.MODEL.PRETRAIN_PATH.split('/')[-1].split('.')[0].split('_')[-1])
+    #         print('Start epoch:', start_epoch)
+    #         path_to_optimizer = cfg.MODEL.PRETRAIN_PATH.replace('model', 'optimizer')
+    #         print('Path to the checkpoint of optimizer:', path_to_optimizer)
+    #         path_to_center_param = cfg.MODEL.PRETRAIN_PATH.replace('model', 'center_param')
+    #         print('Path to the checkpoint of center_param:', path_to_center_param)
+    #         path_to_optimizer_center = cfg.MODEL.PRETRAIN_PATH.replace('model', 'optimizer_center')
+    #         print('Path to the checkpoint of optimizer_center:', path_to_optimizer_center)
+    #         model.load_state_dict(paddle.load(cfg.MODEL.PRETRAIN_PATH))
+    #         optimizer.load_state_dict(paddle.load(path_to_optimizer))
+    #         center_criterion.load_state_dict(paddle.load(path_to_center_param))
+    #         optimizer_center.load_state_dict(paddle.load(path_to_optimizer_center))
+    #         scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+    #                                       cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD, start_epoch)
+    #     elif cfg.MODEL.PRETRAIN_CHOICE == 'imagenet':
+    #         start_epoch = 0
+    #         scheduler = WarmupMultiStepLRPaddle(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,
+    #                                       cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
+    #     else:
+    #         print('Only support pretrain_choice for imagenet and self, but got {}'.format(cfg.MODEL.PRETRAIN_CHOICE))
+    #
+    #     do_train_with_center(
+    #         cfg,
+    #         model,
+    #         center_criterion,
+    #         train_loader,
+    #         val_loader,
+    #         optimizer,
+    #         optimizer_center,
+    #         scheduler,      # modify for using self trained model
+    #         loss_func,
+    #         num_query,
+    #         start_epoch     # add for using self trained model
+    #     )
     else:
         print("Unsupported value for cfg.MODEL.IF_WITH_CENTER {}, only support yes or no!\n".format(cfg.MODEL.IF_WITH_CENTER))
 

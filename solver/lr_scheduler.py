@@ -88,7 +88,7 @@ class WarmupMultiStepLRPaddle(object):
         #     msg = f"When using warm up, the value of \"Global.epochs\" must be greater than value of \"Optimizer.lr.warmup_epoch\". The value of \"Optimizer.lr.warmup_epoch\" has been set to {epochs}."
         #     logger.warning(msg)
         #     warmup_epoch = epochs
-        self.step_size = step_each_epoch * step_size
+        self.step_size = step_each_epoch
         self.learning_rate = learning_rate
         self.gamma = gamma
         self.last_epoch = last_epoch

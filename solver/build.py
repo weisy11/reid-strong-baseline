@@ -28,10 +28,7 @@ def make_optimizer(cfg, model):
     return optimizer
 
 
-def make_optimizer_paddle(cfg, model, len_dataloader):
-    base_lr = cfg.SOLVER.BASE_LR
-    lr = WarmupMultiStepLRPaddle(base_lr, cfg.SOLVER.STEPS, len_dataloader, cfg.SOLVER.MAX_EPOCHS,
-                                 cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_FACTOR)
+def make_optimizer_paddle(cfg, model, len_dataloader, lr):
     weight_decay = cfg.SOLVER.WEIGHT_DECAY
 
     if cfg.SOLVER.OPTIMIZER_NAME == 'SGD':
