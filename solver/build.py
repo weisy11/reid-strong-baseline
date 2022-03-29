@@ -7,6 +7,8 @@
 import torch
 import paddle
 
+from lr_scheduler import WarmupMultiStepLRPaddle
+
 
 def make_optimizer(cfg, model):
     params = []
@@ -26,8 +28,10 @@ def make_optimizer(cfg, model):
     return optimizer
 
 
-def make_optimizer_paddle(cfg, model):
-    lr = cfg.SOLVER.BASE_LR
+def make_optimizer_paddle(cfg, model, len_dataloader):
+    base_lr = cfg.SOLVER.BASE_LR
+    lr = WarmupMultiStepLRPaddle(base_lr, cfg.SOLVER.STEPS, len_dataloader, cfg.SOLVER.MAX_EPOCHS,
+                                 cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_FACTOR)
     weight_decay = cfg.SOLVER.WEIGHT_DECAY
 
     if cfg.SOLVER.OPTIMIZER_NAME == 'SGD':
